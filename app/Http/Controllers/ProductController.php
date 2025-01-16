@@ -12,7 +12,9 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $data = Product::all();
+        $data = Product::join('product_types', 'products.product_type_id', '=', 'product_types.id')
+            ->select('products.*', 'product_types.type_name')
+            ->get();
         return response([
             "message" => "Product List",
             "data" => $data,
@@ -30,7 +32,7 @@ class ProductController extends Controller
             'description' => 'required',
             'stock' => 'required|numeric',
             'price' => 'required|numeric',
-            'img_url' => 'required|image|mimes:jpg|max:1024',
+            'img_url' => 'required|image:jpg,png|max:2048',
         ]);
 
         $imageNames = time().'.'.$request->img_url->extension();
@@ -82,14 +84,14 @@ class ProductController extends Controller
             'description' => 'required',
             'stock' => 'required',
             'price' => 'required',
-            'img_url' => 'required|image|mimes:jpg|max:1024',
+            'img_url' => 'required|image:jpg,png|max:2048',
         ]);
 
         $imageNames = time().'.'.$request->img_url->extension();
 
         $request->img_url->move(public_path('images'), $imageNames);
 
-        
+
         $data = Product::find($id);
         if($data == null){
             return response([
